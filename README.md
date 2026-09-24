@@ -323,14 +323,7 @@ Interactive docs: `http://localhost:8000/api/docs`
 
 ---
 
-## 👥 Team
-
-| Name | Role |
-|---|---|
-| Team Member 1 | Backend + AI Integration |
-| Team Member 2 | Frontend + UI/UX |
-| Team Member 3 | Azure Services + Deployment |
-| Team Member 4 | Knowledge Base + Testing |
+## 👥 Akanksha Mahajan 2410993170
 
 ---
 
