@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoxCampus — Voice University Assistant</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Animated background -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="20" fill="url(#grad1)"/>
+          <path d="M12 20 Q20 10 28 20 Q20 30 12 20Z" fill="white" opacity="0.9"/>
+          <circle cx="20" cy="20" r="4" fill="white"/>
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="40" y2="40">
+              <stop offset="0%" stop-color="#6C63FF"/>
+              <stop offset="100%" stop-color="#3ECFCF"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="nav-title">VoxCampus</span>
+      <span class="nav-badge">AI</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#how" class="nav-link">How It Works</a>
+      <a href="#about" class="nav-link">About</a>
+      <div id="nav-user" class="nav-user hidden">
+        <span id="nav-username" class="nav-username"></span>
+        <button id="logout-btn" class="btn-logout">Logout</button>
+      </div>
+      <a href="/auth" id="nav-login" class="btn-nav-login">Login</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-tag">🎓 Chitkara University</div>
+      <h1 class="hero-title">
+        Your Voice,<br/>
+        <span class="gradient-text">Your Campus.</span>
+      </h1>
+      <p class="hero-subtitle">
+        Ask anything about courses, admissions, fees, exams, or faculty — 
+        just speak or type. VoxCampus answers instantly.
+      </p>
+      <div class="hero-cta">
+        <button class="btn-primary" onclick="scrollToAssistant()">
+          <span>🎙️ Try Now</span>
+        </button>
+        <a href="#features" class="btn-secondary">See Features</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="voice-orb-hero" id="hero-orb">
+        <div class="orb-ring r1"></div>
+        <div class="orb-ring r2"></div>
+        <div class="orb-ring r3"></div>
+        <div class="orb-center">
+          <svg viewBox="0 0 60 60" width="36" height="36" fill="none">
+            <path d="M30 10 C24 10 20 15 20 22 L20 32 C20 39 24 44 30 44 C36 44 40 39 40 32 L40 22 C40 15 36 10 30 10Z" fill="white"/>
+            <path d="M14 30 C14 39.9 21.2 48 30 49 C38.8 48 46 39.9 46 30" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <line x1="30" y1="49" x2="30" y2="56" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            <line x1="22" y1="56" x2="38" y2="56" stroke="white" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Assistant Section -->
+  <section class="assistant-section" id="assistant">
+    <div class="assistant-container">
+
+      <!-- Category Pills -->
+      <div class="category-bar">
+        <button class="cat-pill active" data-cat="all">All Topics</button>
+        <button class="cat-pill" data-cat="courses">📚 Courses</button>
+        <button class="cat-pill" data-cat="admissions">🎓 Admissions</button>
+        <button class="cat-pill" data-cat="fees">💰 Fees</button>
+        <button class="cat-pill" data-cat="exams">📅 Exams</button>
+        <button class="cat-pill" data-cat="faculty">👨‍🏫 Faculty</button>
+      </div>
+
+      <!-- Chat Window -->
+      <div class="chat-window" id="chat-window">
+        <div class="chat-welcome">
+          <div class="welcome-icon">🎙️</div>
+          <h3>Hi! I'm VoxCampus</h3>
+          <p>Ask me anything about the university — by voice or text.</p>
+          <div class="suggestion-chips" id="suggestion-chips">
+            <button class="chip" onclick="useChip(this)">What B.Tech courses are available?</button>
+            <button class="chip" onclick="useChip(this)">How do I apply for admission?</button>
+            <button class="chip" onclick="useChip(this)">What is the CSE fee?</button>
+            <button class="chip" onclick="useChip(this)">When are end-term exams?</button>
+            <button class="chip" onclick="useChip(this)">What scholarships are available?</button>
+            <button class="chip" onclick="useChip(this)">Tell me about faculty</button>
+          </div>
+        </div>
+        <div id="messages"></div>
+        <div id="typing-indicator" class="typing-indicator hidden">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Voice Status Bar -->
+      <div class="voice-status-bar" id="voice-status-bar">
+        <div class="waveform" id="waveform">
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div>
+        </div>
+        <span id="voice-status-text">Recording...</span>
+      </div>
+
+      <!-- Input Bar -->
+      <div class="input-bar">
+        <button class="mic-btn" id="mic-btn" title="Hold to speak">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+            <path d="M12 2C10.4 2 9 3.4 9 5V13C9 14.6 10.4 16 12 16C13.6 16 15 14.6 15 13V5C15 3.4 13.6 2 12 2Z" fill="currentColor"/>
+            <path d="M5 11C5 14.9 8.1 18 12 18C15.9 18 19 14.9 19 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <input
+          type="text"
+          id="text-input"
+          class="text-input"
+          placeholder="Type your question or press mic to speak..."
+          autocomplete="off"
+        />
+        <button class="tts-toggle" id="tts-toggle" title="Toggle voice response" onclick="toggleTTS()">
+          🔊
+        </button>
+        <button class="send-btn" id="send-btn" onclick="sendTextQuery()">
+          <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
+            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="features-header">
+      <div class="features-eyebrow">✦ Capabilities</div>
+      <h2 class="section-title">Everything a Student Needs,<br/><span class="gradient-text">All in One Voice</span></h2>
+      <p class="section-subtitle">VoxCampus combines Azure AI Speech, Microsoft Foundry, and RAG to give instant, accurate university answers.</p>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-number">5+</span>
+        <span class="stat-label">Topic Areas</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">39</span>
+        <span class="stat-label">Knowledge Chunks</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">RAG</span>
+        <span class="stat-label">Powered Retrieval</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">2-in-1</span>
+        <span class="stat-label">Voice + Text</span>
+      </div>
+    </div>
+
+    <!-- Feature Cards Grid -->
+    <div class="features-grid">
+      <div class="feature-card fc-voice">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#6C63FF,#3ECFCF)">
+            <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+              <path d="M12 2C10.4 2 9 3.4 9 5V13C9 14.6 10.4 16 12 16C13.6 16 15 14.6 15 13V5C15 3.4 13.6 2 12 2Z" fill="white"/>
+              <path d="M5 11C5 14.9 8.1 18 12 18C15.9 18 19 14.9 19 11" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <line x1="12" y1="18" x2="12" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="fc-badge">Core</span>
+        </div>
+        <h3>Voice First</h3>
+        <p>Hold the mic and speak naturally. Azure AI Speech converts your voice to text in real time with neural accuracy.</p>
+        <div class="fc-tech">Azure AI Speech · STT</div>
+      </div>
+
+      <div class="feature-card fc-ai">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#FF6B9D,#6C63FF)">
+            <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+              <circle cx="12" cy="12" r="3" fill="white"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="fc-badge">AI</span>
+        </div>
+        <h3>Foundry AI Agent</h3>
+        <p>Microsoft Foundry AI Agent understands context, retrieves knowledge, and delivers intelligent, grounded answers.</p>
+        <div class="fc-tech">Microsoft Foundry · GPT-4o</div>
+      </div>
+
+      <div class="feature-card fc-rag">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#3ECFCF,#6C63FF)">
+            <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+              <rect x="3" y="3" width="7" height="7" rx="1" fill="white" opacity="0.9"/>
+              <rect x="14" y="3" width="7" height="7" rx="1" fill="white" opacity="0.6"/>
+              <rect x="3" y="14" width="7" height="7" rx="1" fill="white" opacity="0.6"/>
+              <rect x="14" y="14" width="7" height="7" rx="1" fill="white" opacity="0.9"/>
+              <path d="M10 6.5h4M6.5 10v4M17.5 10v4M10 17.5h4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="fc-badge">RAG</span>
+        </div>
+        <h3>Smart Retrieval</h3>
+        <p>RAG pipeline chunks 39 knowledge passages and retrieves the most relevant ones using TF-IDF cosine similarity.</p>
+        <div class="fc-tech">RAG · TF-IDF · Azure AI Search</div>
+      </div>
+
+      <div class="feature-card fc-courses">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#f7971e,#ffd200)">
+            <span style="font-size:1.1rem">📚</span>
+          </div>
+        </div>
+        <h3>Courses & Programs</h3>
+        <p>Full details on B.Tech, MBA, BCA, M.Tech, Ph.D — all branches, specializations like AI/ML, Data Science, Cybersecurity.</p>
+        <div class="fc-detail-list">
+          <span>B.Tech CSE / AI-ML</span>
+          <span>MBA Analytics</span>
+          <span>MCA · M.Tech</span>
+        </div>
+      </div>
+
+      <div class="feature-card fc-admissions">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#11998e,#38ef7d)">
+            <span style="font-size:1.1rem">🎓</span>
+          </div>
+        </div>
+        <h3>Admissions Guide</h3>
+        <p>Step-by-step admission process, eligibility criteria, required documents, entrance exams, and key deadlines.</p>
+        <div class="fc-detail-list">
+          <span>JEE · CUET · GATE</span>
+          <span>Documents list</span>
+          <span>Deadlines 2026</span>
+        </div>
+      </div>
+
+      <div class="feature-card fc-fees">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#f953c6,#b91d73)">
+            <span style="font-size:1.1rem">💰</span>
+          </div>
+        </div>
+        <h3>Fee & Scholarships</h3>
+        <p>Transparent annual fee structure for every program, hostel charges, and all available scholarship options.</p>
+        <div class="fc-detail-list">
+          <span>₹1.8L – ₹2.2L B.Tech</span>
+          <span>Merit 100% waiver</span>
+          <span>EMI options</span>
+        </div>
+      </div>
+
+      <div class="feature-card fc-exams">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#4776e6,#8e54e9)">
+            <span style="font-size:1.1rem">📅</span>
+          </div>
+        </div>
+        <h3>Exam Schedules</h3>
+        <p>Mid-term and end-term exam dates, grading system, result dates, supplementary rules and attendance policy.</p>
+        <div class="fc-detail-list">
+          <span>O to F grading</span>
+          <span>75% attendance</span>
+          <span>Supplementary rules</span>
+        </div>
+      </div>
+
+      <div class="feature-card fc-faculty">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#fd746c,#ff9068)">
+            <span style="font-size:1.1rem">👨‍🏫</span>
+          </div>
+        </div>
+        <h3>Faculty & Departments</h3>
+        <p>Department-wise faculty info, HODs, research areas, office hours, and how to contact your mentor through the ERP portal.</p>
+        <div class="fc-detail-list">
+          <span>CSE · ECE · MBA</span>
+          <span>AI Lab · IoT Lab</span>
+          <span>ERP directory</span>
+        </div>
+      </div>
+
+      <div class="feature-card fc-tts">
+        <div class="fc-glow"></div>
+        <div class="fc-top">
+          <div class="fc-icon-wrap" style="background: linear-gradient(135deg,#3ECFCF,#38ef7d)">
+            <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+              <path d="M11 5L6 9H2v6h4l5 4V5z" fill="white"/>
+              <path d="M19.07 4.93a10 10 0 010 14.14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15.54 8.46a5 5 0 010 7.07" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="fc-badge">New</span>
+        </div>
+        <h3>Voice Response</h3>
+        <p>Not just voice input — VoxCampus also reads the answer back to you using Azure Neural TTS (en-US-JennyNeural).</p>
+        <div class="fc-tech">Azure Neural TTS · en-US</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-section" id="how">
+    <div class="features-header">
+      <div class="features-eyebrow">✦ Under the Hood</div>
+      <h2 class="section-title">How VoxCampus Works</h2>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">01</div>
+        <div class="flow-icon">🎙️</div>
+        <h4>You Speak or Type</h4>
+        <p>Hold mic button and ask your question. Or type it directly in the chat.</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">02</div>
+        <div class="flow-icon">🔤</div>
+        <h4>Azure STT</h4>
+        <p>Azure AI Speech converts your voice to text with neural accuracy.</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">03</div>
+        <div class="flow-icon">🧠</div>
+        <h4>RAG Retrieval</h4>
+        <p>Top-5 relevant knowledge chunks are retrieved using TF-IDF / Azure AI Search.</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">04</div>
+        <div class="flow-icon">🤖</div>
+        <h4>Foundry AI</h4>
+        <p>Microsoft Foundry Agent generates a grounded, contextual answer.</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">05</div>
+        <div class="flow-icon">🔊</div>
+        <h4>Voice Response</h4>
+        <p>Azure Neural TTS reads the answer back to you naturally.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about-section" id="about">
+
+    <div class="features-header">
+      <div class="features-eyebrow">✦ About VoxCampus</div>
+      <h2 class="section-title">Built for Students,<br/><span class="gradient-text">Powered by Azure AI</span></h2>
+    </div>
+
+    <!-- Animated Stats Row -->
+    <div class="about-stats">
+      <div class="astat-card">
+        <div class="astat-num" data-target="39">0</div>
+        <div class="astat-plus">+</div>
+        <div class="astat-label">Knowledge Chunks</div>
+      </div>
+      <div class="astat-card">
+        <div class="astat-num" data-target="5">0</div>
+        <div class="astat-plus"></div>
+        <div class="astat-label">Topic Categories</div>
+      </div>
+      <div class="astat-card">
+        <div class="astat-num" data-target="3">0</div>
+        <div class="astat-plus"></div>
+        <div class="astat-label">Azure AI Services</div>
+      </div>
+      <div class="astat-card">
+        <div class="astat-num" data-target="2">0</div>
+        <div class="astat-plus"></div>
+        <div class="astat-label">Input Modes</div>
+      </div>
+    </div>
+
+    <!-- Interactive Tabs -->
+    <div class="about-tabs-wrap">
+      <div class="about-tabs">
+        <button class="about-tab active" data-tab="project" onclick="switchAboutTab('project', this)">🎯 Project</button>
+        <button class="about-tab" data-tab="tech"    onclick="switchAboutTab('tech', this)">🛠️ Tech Stack</button>
+        <button class="about-tab" data-tab="team"    onclick="switchAboutTab('team', this)">👥 Team</button>
+        <button class="about-tab" data-tab="arch"    onclick="switchAboutTab('arch', this)">🏗️ Architecture</button>
+      </div>
+
+      <!-- Tab: Project -->
+      <div class="about-panel active" id="tab-project">
+        <div class="about-two-col">
+          <div class="about-col-text">
+            <h3>What is VoxCampus?</h3>
+            <p>VoxCampus is an <strong>AI-103 Group Project</strong> at Chitkara University. It's a voice-first university assistant that helps students get instant answers about courses, admissions, fees, exams, and faculty.</p>
+            <p>Students waste time searching across websites and offices for basic information. VoxCampus solves this with a single, intelligent, conversational interface — powered by Azure AI and a RAG pipeline for accurate, grounded responses.</p>
+            <div class="about-pill-row">
+              <span class="about-pill green">🎙️ Voice Input</span>
+              <span class="about-pill blue">🤖 AI Answers</span>
+              <span class="about-pill purple">📚 RAG Grounded</span>
+              <span class="about-pill pink">🔊 Voice Output</span>
+            </div>
+          </div>
+          <div class="about-col-visual">
+            <div class="problem-solution">
+              <div class="ps-card problem">
+                <div class="ps-label">❌ Problem</div>
+                <ul>
+                  <li>Searching multiple websites</li>
+                  <li>Visiting different offices</li>
+                  <li>Unclear fee information</li>
+                  <li>No single source of truth</li>
+                </ul>
+              </div>
+              <div class="ps-arrow">→</div>
+              <div class="ps-card solution">
+                <div class="ps-label">✅ VoxCampus</div>
+                <ul>
+                  <li>One voice or text query</li>
+                  <li>Instant AI answer</li>
+                  <li>Accurate RAG retrieval</li>
+                  <li>Voice response too</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Tech Stack -->
+      <div class="about-panel" id="tab-tech">
+        <div class="tech-stack-grid">
+          <div class="ts-card">
+            <div class="ts-icon" style="background:linear-gradient(135deg,#0078D4,#50E6FF)">☁️</div>
+            <div class="ts-info">
+              <h4>Azure AI Speech</h4>
+              <p>Neural STT converts voice to text. Neural TTS reads responses back — using en-US-JennyNeural voice.</p>
+              <span class="ts-badge">Speech SDK 1.37</span>
+            </div>
+          </div>
+          <div class="ts-card">
+            <div class="ts-icon" style="background:linear-gradient(135deg,#6C63FF,#3ECFCF)">🤖</div>
+            <div class="ts-info">
+              <h4>Microsoft Foundry</h4>
+              <p>Foundry AI Agent or Azure OpenAI GPT-4o generates intelligent answers grounded in retrieved context.</p>
+              <span class="ts-badge">GPT-4o · azure-ai-projects</span>
+            </div>
+          </div>
+          <div class="ts-card">
+            <div class="ts-icon" style="background:linear-gradient(135deg,#3ECFCF,#38ef7d)">🧠</div>
+            <div class="ts-info">
+              <h4>RAG Pipeline</h4>
+              <p>TF-IDF cosine similarity retrieves top-5 relevant chunks from 39 knowledge passages. Upgrades to Azure AI Search hybrid mode.</p>
+              <span class="ts-badge">Local TF-IDF · Azure Search</span>
+            </div>
+          </div>
+          <div class="ts-card">
+            <div class="ts-icon" style="background:linear-gradient(135deg,#f7971e,#ffd200)">⚡</div>
+            <div class="ts-info">
+              <h4>FastAPI Backend</h4>
+              <p>High-performance async Python backend with SQLAlchemy, JWT auth, and auto Swagger docs at /api/docs.</p>
+              <span class="ts-badge">FastAPI 0.111 · Python 3.12</span>
+            </div>
+          </div>
+          <div class="ts-card">
+            <div class="ts-icon" style="background:linear-gradient(135deg,#fd746c,#ff9068)">🔐</div>
+            <div class="ts-info">
+              <h4>Auth System</h4>
+              <p>JWT-based authentication with bcrypt password hashing. Guest mode available — no login required.</p>
+              <span class="ts-badge">JWT · bcrypt 4.2</span>
+            </div>
+          </div>
+          <div class="ts-card">
+            <div class="ts-icon" style="background:linear-gradient(135deg,#4776e6,#8e54e9)">🎨</div>
+            <div class="ts-info">
+              <h4>Frontend</h4>
+              <p>Pure HTML/CSS/JS with glassmorphism design, animated waveform, hold-to-speak mic, and dark theme.</p>
+              <span class="ts-badge">Vanilla JS · Space Grotesk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Team -->
+      <div class="about-panel" id="tab-team">
+        <div class="team-solo">
+          <div class="team-card-solo">
+            <div class="team-avatar-solo">A</div>
+            <div class="team-solo-info">
+              <h3>Akanksha Mahajan</h3>
+              <span class="team-roll">Roll No: 2410993170</span>
+              <span class="team-role">Full Stack AI Developer</span>
+              <p>Built the complete VoxCampus application — backend, AI integration, RAG pipeline, frontend UI, Azure Speech, Microsoft Foundry, authentication, and deployment.</p>
+              <div class="team-skills">
+                <span>Python</span>
+                <span>FastAPI</span>
+                <span>Azure AI Speech</span>
+                <span>Microsoft Foundry</span>
+                <span>RAG Pipeline</span>
+                <span>HTML/CSS/JS</span>
+                <span>SQLite</span>
+                <span>JWT Auth</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="team-footer">
+          <span>🎓 AI-103 · BE-CSE AI&ML · Batch 2024 · Chitkara University</span>
+        </div>
+      </div>
+
+      <!-- Tab: Architecture -->
+      <div class="about-panel" id="tab-arch">
+        <div class="arch-flow">
+          <div class="arch-layer" style="--layer-color:#6C63FF">
+            <div class="arch-layer-label">Frontend</div>
+            <div class="arch-layer-items">
+              <span>HTML / CSS / JS</span>
+              <span>Voice Recorder</span>
+              <span>Chat UI</span>
+              <span>TTS Player</span>
+            </div>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer" style="--layer-color:#3ECFCF">
+            <div class="arch-layer-label">FastAPI Backend</div>
+            <div class="arch-layer-items">
+              <span>POST /api/voice/query</span>
+              <span>POST /api/chat/query</span>
+              <span>POST /api/auth/login</span>
+              <span>GET /api/health</span>
+            </div>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-split">
+            <div class="arch-layer" style="--layer-color:#FF6B9D">
+              <div class="arch-layer-label">Azure AI Speech</div>
+              <div class="arch-layer-items">
+                <span>Speech → Text (STT)</span>
+                <span>Text → Speech (TTS)</span>
+              </div>
+            </div>
+            <div class="arch-layer" style="--layer-color:#f7971e">
+              <div class="arch-layer-label">RAG Engine</div>
+              <div class="arch-layer-items">
+                <span>TF-IDF Retrieval</span>
+                <span>Azure AI Search</span>
+                <span>Top-5 Chunks</span>
+              </div>
+            </div>
+            <div class="arch-layer" style="--layer-color:#38ef7d">
+              <div class="arch-layer-label">Microsoft Foundry</div>
+              <div class="arch-layer-items">
+                <span>Foundry AI Agent</span>
+                <span>Azure OpenAI GPT-4o</span>
+              </div>
+            </div>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer" style="--layer-color:#8e54e9">
+            <div class="arch-layer-label">Data Layer</div>
+            <div class="arch-layer-items">
+              <span>SQLite Database</span>
+              <span>Query History</span>
+              <span>User Accounts</span>
+              <span>JWT Sessions</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <span class="footer-brand">🎙️ VoxCampus</span>
+      <span class="footer-copy">AI-103 Project · Chitkara University · 2026</span>
+    </div>
+  </footer>
+
+  <!-- Audio player (hidden) -->
+  <audio id="tts-audio" style="display:none;"></audio>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
